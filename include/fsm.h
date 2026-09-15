@@ -81,6 +81,21 @@ void fsm_init(fsm_t *const me, fsm_state_fn initial_state);
  */
 void fsm_dispatch(fsm_t *const me, const event_t *const e);
 
+#ifdef FSM_TRACE
+/**
+ * @brief  Hook de trace: chamada por fsm_tran a cada transicao REAL (nunca
+ *         para um evento ignorado -- se nao houve fsm_tran, nao ha chamada
+ *         aqui). So existe quando FSM_TRACE esta definido; a IMPLEMENTACAO
+ *         nao e desta biblioteca -- quem liga FSM_TRACE (um teste, um
+ *         exemplo, um produto) precisa fornecer o corpo (printf, buffer
+ *         circular, UART...), porque so quem esta do outro lado sabe pra
+ *         onde esse dado deveria ir.
+ * @param  de   Funcao do estado de origem.
+ * @param  para Funcao do estado de destino.
+ */
+void fsm_trace(fsm_state_fn de, fsm_state_fn para);
+#endif
+
 /**
  * @brief  Transiciona a maquina para um novo estado: dispara SIG_EXIT no
  *         estado atual, troca me->state, dispara SIG_ENTRY no novo. Ponto
@@ -93,12 +108,15 @@ void fsm_dispatch(fsm_t *const me, const event_t *const e);
  * porque quem chama fsm_tran sao as funcoes de estado da APLICACAO
  * (catraca.c, por exemplo), em todo evento que causa transicao. E o
  * caminho mais frequente da biblioteca depois de fsm_dispatch, e o corpo e
- * trivial (tres chamadas), sem nada que precise ficar escondido no .c.
+ * trivial (tres/quatro chamadas), sem nada que precise ficar escondido no .c.
  */
 static inline void fsm_tran(fsm_t *const me, fsm_state_fn novo_estado)
 {
     static const event_t EXIT_EV  = { .sig = SIG_EXIT };
     static const event_t ENTRY_EV = { .sig = SIG_ENTRY };
+#ifdef FSM_TRACE
+    fsm_state_fn antigo = me->state;
+#endif
 
     FSM_ASSERT(me != NULL);
     FSM_ASSERT(novo_estado != NULL);
@@ -106,6 +124,10 @@ static inline void fsm_tran(fsm_t *const me, fsm_state_fn novo_estado)
     me->state(me, &EXIT_EV);    /* avisa o estado atual que ele esta saindo */
     me->state = novo_estado;    /* so agora troca -- EXIT ainda viu o estado antigo */
     me->state(me, &ENTRY_EV);   /* avisa o novo estado que ele acabou de entrar */
+
+#ifdef FSM_TRACE
+    fsm_trace(antigo, novo_estado);
+#endif
 }
 
 #ifdef __cplusplus

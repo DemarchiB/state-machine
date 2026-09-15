@@ -9,4 +9,5 @@ target_include_directories(fsm PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(examples/catraca)
 
-# tests/ (CTest) entra quando tests/test_catraca.c existir.
+enable_testing()
+add_subdirectory(tests)
