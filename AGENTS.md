@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Biblioteca em C de máquinas de estado finitas (FSM), base para HSM e Active Objects futuros. Uma contribuição está pronta quando os testes em host passam e nenhum aviso novo aparece no build. Prioridade: API pequena e simples de adotar via submódulo em outros projetos — evitar peso documental que não ajuda quem só vai consumir a lib.
+Biblioteca em C de máquinas de estado: FSM plana (pronta, `include/fsm.h`/`src/fsm.c`) e HSM (em andamento), no mesmo repositório — ver [ADR-0003](docs/decisions/ADR-0003-hsm-mesmo-repositorio.md). Active Objects continua em repositório futuro e separado. Uma contribuição está pronta quando os testes em host passam e nenhum aviso novo aparece no build. Prioridade: API pequena e simples de adotar via submódulo em outros projetos — evitar peso documental que não ajuda quem só vai consumir a lib.
 
 ## Convenções
 Segue `docs/guide/` (submódulo). No início de toda tarefa, leia
@@ -19,12 +19,13 @@ Segue `docs/guide/` (submódulo). No início de toda tarefa, leia
 | Lint / análise | `<a definir: nenhuma ferramenta adotada ainda>` | — |
 | Links da documentação | `python docs/guide/tools/verificar.py` | raiz |
 
-`<a verificar>` até a primeira execução confirmar que funcionam de verdade. `src/fsm.c` e `examples/catraca/catraca.c` existem como esqueleto (assinaturas prontas, corpo com `TODO`/`>>> SUA PARTE <<<`) — buildam, mas não fazem nada ainda. `tests/` continua vazio.
+Configurar/Build/Testes confirmados funcionando (Bruno, gerador Visual Studio — multi-config precisa de `--config Debug`/`-C Debug` nos dois últimos, ver README). Lint segue `<a definir>`; link-checker segue `<a verificar>` até a primeira execução real.
 
 ## Onde fica o quê
-- `docs/decisions/` — ADR só quando a decisão for difícil de reverter e afetar mais de um ponto da lib (`docs/guide/templates/adr.md`, critério de quando registrar). `ADR-0001-fila-fora-da-fsm.md` (fila fora da lib) e `ADR-0002-fsm-dispatch-void-assert.md` (contrato por assert, não por retorno de erro). Spec formal (`docs/specs/`) não é usada por padrão nesta lib — API pequena o suficiente pra não precisar, por ora.
-- `include/fsm.h` — interface pública da biblioteca (`fsm_t`, `event_t`, `fsm_dispatch`, `fsm_init`); ver ADR-0001 pro que ela deliberadamente não tem, ADR-0002 pro porquê de ser `void`.
-- `src/fsm.c` — implementação; `examples/catraca/` — exemplo de uso; `tests/` — vazio até os primeiros testes existirem.
+- `docs/decisions/` — ADR só quando a decisão for difícil de reverter e afetar mais de um ponto da lib (`docs/guide/templates/adr.md`, critério de quando registrar). `ADR-0001-fila-fora-da-fsm.md` (fila fora da lib), `ADR-0002-fsm-dispatch-void-assert.md` (contrato por assert, não por retorno de erro), `ADR-0003-hsm-mesmo-repositorio.md` (HSM como componente irmão, não repositório novo). Spec formal (`docs/specs/`) não é usada por padrão nesta lib — API pequena o suficiente pra não precisar, por ora.
+- `include/fsm.h` / `src/fsm.c` — FSM plana: `fsm_t`, `event_t`, `fsm_init`, `fsm_dispatch`, `fsm_tran` (este último `static inline` no header); ver ADR-0001 pro que ela deliberadamente não tem, ADR-0002 pro porquê de ser `void`.
+- `include/hsm.h` / `src/hsm.c` — ainda não existem; nascem com a Fase 4, com o primeiro conteúdo real (mesma regra de sempre: nada de esqueleto vazio antes da hora).
+- `examples/catraca/` — exemplo de uso da FSM (`catraca.c`/`catraca.h`/`main.c`); `tests/test_catraca.c` — teste em host real (CTest), cobre a sequência completa de transições, um evento ignorado de propósito, e trace (`FSM_TRACE`) ligado só neste alvo.
 
 ## Restrições críticas
 - `fsm_dispatch` não aloca memória dinamicamente e não bloqueia.
