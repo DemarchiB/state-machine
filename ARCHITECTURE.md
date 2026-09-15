@@ -15,9 +15,10 @@ Nenhuma dependência de RTOS, driver ou hardware específico nesta fase — é u
 - **A fila de eventos não entra nesta biblioteca** — `fsm_dispatch` é sempre síncrono, chamado diretamente por quem tem o evento. Fila, task e backend de RTOS/POSIX ficam na camada de Active Object, num repositório futuro. Decisão registrada em [ADR-0001](docs/decisions/ADR-0001-fila-fora-da-fsm.md).
 - **Sem alocação dinâmica.** Toda instância de `fsm_t` é alocada por quem a usa (estática ou em pilha); a biblioteca nunca chama `malloc`.
 - **API pública em C99 puro**, sem extensão de compilador específico, para não amarrar a um toolchain só.
+- **Contrato validado por assert, não por retorno de erro.** `fsm_init`/`fsm_dispatch` são `void`; ponteiro nulo é bug de quem chama, verificado por `FSM_ASSERT`. Decisão registrada em [ADR-0002](docs/decisions/ADR-0002-fsm-dispatch-void-assert.md).
 
 ## Pontos não determinados
 - Se `event_t` vai ganhar um campo de payload genérico já nesta fase, ou só quando a primeira máquina de aplicação precisar de um evento com dado associado (composição: struct derivada com `event_t` como primeiro membro, mesmo idioma de `docs/guide/templates/modulo-c.md`, Seção *Polimorfismo*).
-- Convenção de códigos de erro além de `FSM_OK`/`FSM_ERR_PARAM`: `<a definir>` — ainda não apareceu um caso de erro que precise de um código próprio.
+- Se `FSM_ASSERT` ganha um handler customizado que força estado seguro em vez de `abort()` padrão em build de release: fica para quando o projeto entrar em contexto de safety, não decidido agora.
 - Se o subconjunto MISRA definido no guia (`practices/c-embarcado.md`) é adotado já nesta biblioteca ou só quando o projeto entrar em contexto de safety: `<a definir>`.
 - Versão mínima de CMake exigida: `<a verificar: nenhum build foi rodado ainda para confirmar>`.

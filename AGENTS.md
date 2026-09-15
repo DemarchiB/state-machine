@@ -19,16 +19,17 @@ Segue `docs/guide/` (submódulo). No início de toda tarefa, leia
 | Lint / análise | `<a definir: nenhuma ferramenta adotada ainda>` | — |
 | Links da documentação | `python docs/guide/tools/verificar.py` | raiz |
 
-Nenhum destes comandos foi executado até agora neste repositório — `<a verificar>` até a primeira execução confirmar que funcionam (não há `src/`/`tests/` com conteúdo ainda).
+`<a verificar>` até a primeira execução confirmar que funcionam de verdade. `src/fsm.c` e `examples/catraca/catraca.c` existem como esqueleto (assinaturas prontas, corpo com `TODO`/`>>> SUA PARTE <<<`) — buildam, mas não fazem nada ainda. `tests/` continua vazio.
 
 ## Onde fica o quê
-- `docs/decisions/` — ADR só quando a decisão for difícil de reverter e afetar mais de um ponto da lib (`docs/guide/templates/adr.md`, critério de quando registrar). A primeira é `ADR-0001-fila-fora-da-fsm.md`. Spec formal (`docs/specs/`) não é usada por padrão nesta lib — API pequena o suficiente pra não precisar, por ora.
-- `include/fsm.h` — interface pública da biblioteca (`fsm_t`, `event_t`, `fsm_dispatch`); ver ADR-0001 pro que ela deliberadamente não tem.
-- `src/`, `tests/`, `examples/` — vazios até a primeira implementação real existir.
+- `docs/decisions/` — ADR só quando a decisão for difícil de reverter e afetar mais de um ponto da lib (`docs/guide/templates/adr.md`, critério de quando registrar). `ADR-0001-fila-fora-da-fsm.md` (fila fora da lib) e `ADR-0002-fsm-dispatch-void-assert.md` (contrato por assert, não por retorno de erro). Spec formal (`docs/specs/`) não é usada por padrão nesta lib — API pequena o suficiente pra não precisar, por ora.
+- `include/fsm.h` — interface pública da biblioteca (`fsm_t`, `event_t`, `fsm_dispatch`, `fsm_init`); ver ADR-0001 pro que ela deliberadamente não tem, ADR-0002 pro porquê de ser `void`.
+- `src/fsm.c` — implementação; `examples/catraca/` — exemplo de uso; `tests/` — vazio até os primeiros testes existirem.
 
 ## Restrições críticas
 - `fsm_dispatch` não aloca memória dinamicamente e não bloqueia.
 - A fila de eventos não entra neste repositório — ver ADR-0001. Se algum código aqui precisar de fila, é sinal de que ele pertence à camada de Active Object, não a este repositório.
+- `fsm_init`/`fsm_dispatch` são `void`; nenhuma função pública nova entra retornando código de erro sem repetir a discussão de ADR-0002 primeiro.
 - Agente trabalha em branch própria (`docs/workflow.md`) e não executa merge, push para `main` nem reescrita de histórico.
 
 ## Ao terminar
