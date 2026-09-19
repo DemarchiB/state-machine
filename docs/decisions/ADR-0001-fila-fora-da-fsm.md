@@ -4,6 +4,8 @@
 - **Data:** 2026-09-14
 - **Substitui:** —
 
+> Nota (2026-09-19): a camada de Active Object passou a morar neste repositório, como componente separado (`sm_ao`), e o backend é escolhido no link — [ADR-0004](ADR-0004-active-objects-mesmo-repositorio.md). A decisão central daqui continua valendo: `fsm`/`hsm` não conhecem fila.
+
 ## Contexto
 A biblioteca `fsm` precisa ser testável no host, chamando `fsm_dispatch` diretamente e conferindo o estado resultante, sem RTOS nem mock de fila. Se o mecanismo de enfileiramento (FreeRTOS, POSIX, outro) entrasse dentro do dispatch da FSM, toda máquina — mesmo uma que nunca vai rodar como Active Object — ficaria acoplada a esse mecanismo desde a primeira linha, e testar a lógica de transição exigiria subir uma fila de verdade só para confirmar `δ(estado, evento)`.
 
